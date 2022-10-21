@@ -1,7 +1,7 @@
 {
   "name": "schema_validator",
   "version": "1.0.0",
-  "description": "schema validation",
+  "description": "schema validation helper",
   "main": "index.js",
   "author": "Yan Policarpo <h4rd1i@gmail.com>",
   "license": "ISC"
