@@ -1,5 +1,5 @@
 {
-  "name": "schema_validator",
+  "name": "schema_validator_helper",
   "version": "1.0.0",
   "description": "schema validation helper",
   "main": "index.js",

@@ -31,8 +31,15 @@ function schema(keys) {
     let validators = {
         value: null,
         object: function (objectToVerifyKeys) {
+            validators.value = objectToVerifyKeys;
+
             function ifNeedThrowInvalidArgumentException(requiredKeys) {
-                if (!Array.isArray(requiredKeys) || typeof validators.value !== "object") {
+                if ((
+                        !isValidValueWithTypeOf(requiredKeys, 'array') &&
+                        !isValidValueWithTypeOf(requiredKeys, 'object')
+                    ) ||
+                    !isValidValueWithTypeOf(validators.value, "object")
+                ) {
                     const requiredKeysType = typeof validators.value,
                         objectToVerifyKeysType = typeof requiredKeys;
                     validators.value = null;
@@ -40,14 +47,27 @@ function schema(keys) {
                 }
             }
 
-            validators.value = objectToVerifyKeys;
             ifNeedThrowInvalidArgumentException([]);
             return {
                 every: function (requiredKeys) {
                     ifNeedThrowInvalidArgumentException(requiredKeys);
-                    for (var index = 0; index < requiredKeys.length; index++) if (
-                        !validators.value.hasOwnProperty(requiredKeys[index])
-                    ) return false;
+                    if (isValidValueWithTypeOf(requiredKeys, 'array')) {
+                        for (const requiredKey of requiredKeys) if (
+                            !validators.value.hasOwnProperty(requiredKey)
+                        ) return false;
+                    } else {
+                        for (const [key, type] of Object.entries(requiredKeys)) if (!validators.value.hasOwnProperty(key)) {
+                            return false;
+                        } else if (!isValidValueWithTypeOf(type, 'function')) {
+                            if (callPrototypeToString(type.prototype) !== callPrototypeToString(validators.value[key])) {
+                                return false;
+                            }
+                        } else if (
+                            isValidValueWithTypeOf(validators.value[key], 'object') && !(type(validators.value[key]))
+                        ) {
+                            return false
+                        }
+                    }
 
                     return !!requiredKeys;
                 },
